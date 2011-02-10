@@ -59,10 +59,10 @@ sub _gen_sub_pod($;$) {
 
             my $cat = $ah0->{arg_category} // "";
             if (!defined($prev_cat) || $prev_cat ne $cat) {
+                $pod .= "=back\n\n" if defined($prev_cat);
                 $pod .= ($cat ? ucfirst("$cat arguments") :
                              ($has_cat ? "General arguments":"Arguments")) .
                                  " (C<*> denotes required arguments):\n\n";
-                $pod .= "=back\n\n" if defined($prev_cat);
                 $pod .= "=over 4\n\n";
                 $prev_cat = $cat;
             }
