@@ -31,6 +31,8 @@ sub _gen_sub_pod($;$) {
     die "No name in spec" unless $sub_spec->{name};
     $pod .= "=head2 $sub_spec->{name}(\%args) -> RES\n\n";
 
+    $log->trace("Generating POD for $sub_spec->{name} ...");
+
     if ($sub_spec->{summary}) {
         $pod .= "$sub_spec->{summary}.\n\n";
     }
