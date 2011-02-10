@@ -44,59 +44,67 @@ sub _gen_sub_pod($;$) {
     my $args  = $sub_spec->{args} // {};
     my $rargs = $sub_spec->{required_args};
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
-    my $prev_cat;
-    for my $name (sort {
-        (($args->{$a}{attr_hashes}[0]{arg_category} // "") cmp
-             ($args->{$b}{attr_hashes}[0]{arg_category} // "")) ||
-                 (($args->{$a}{attr_hashes}[0]{arg_pos} // 9999) <=>
-                      ($args->{$b}{attr_hashes}[0]{arg_pos} // 9999)) ||
-                          ($a cmp $b) } keys %$args) {
-        my $arg = $args->{$name};
-        my $ah0 = $arg->{attr_hashes}[0];
 
-        my $cat = $ah0->{arg_category} // "";
-        if (!defined($prev_cat) || $prev_cat ne $cat) {
-            $pod .= ($cat ? "$cat arguments" : "Arguments") .
-                " (* denotes required arguments):\n\n";
-            $pod .= "=back\n\n" if defined($prev_cat);
-            $pod .= "=over 4\n\n";
-            $prev_cat = $cat;
+    if (scalar keys %$args) {
+        my $prev_cat;
+        for my $name (sort {
+            (($args->{$a}{attr_hashes}[0]{arg_category} // "") cmp
+                 ($args->{$b}{attr_hashes}[0]{arg_category} // "")) ||
+                     (($args->{$a}{attr_hashes}[0]{arg_pos} // 9999) <=>
+                          ($args->{$b}{attr_hashes}[0]{arg_pos} // 9999)) ||
+                              ($a cmp $b) } keys %$args) {
+            my $arg = $args->{$name};
+            my $ah0 = $arg->{attr_hashes}[0];
+
+            my $cat = $ah0->{arg_category} // "";
+            if (!defined($prev_cat) || $prev_cat ne $cat) {
+                $pod .= ($cat ? "$cat arguments" : "Arguments") .
+                    " (* denotes required arguments):\n\n";
+                $pod .= "=back\n\n" if defined($prev_cat);
+                $pod .= "=over 4\n\n";
+                $prev_cat = $cat;
+            }
+
+            $pod .= "=item * $name".($ah0->{required} ? "*" : "")." => ";
+            if ($arg->{type} eq 'any') {
+                my @schemas = map {_parse_schema($_)} @{$ah0->{of}};
+                my @types   = map {$_->{type}} @schemas;
+                @types      = sort List::MoreUtils::uniq(@types);
+                $pod .= uc join("|", @types);
+            } else {
+                $pod .= uc $arg->{type};
+            }
+            $pod .= " (default ".
+                (defined($ah0->{default}) ?
+                     Data::Dump::Partial::dumpp($ah0->{default}) : "none").
+                           ")"
+                               if defined($ah0->{default});
+            $pod .= "\n\n";
+
+            $pod .= "One of:\n\n".
+                join("", map {" $_\n"} split /\n/,
+                     Data::Dump::dump($ah0->{choices}))."\n\n"
+                           if defined($ah0->{choices});
+
+            #my $o = $ah0->{arg_pos};
+            #my $g = $ah0->{arg_greedy};
+
+            $pod .= "$ah0->{summary}.\n\n" if $ah0->{summary};
+
+            my $desc = $ah0->{description};
+            if ($desc) {
+                $desc =~ s/^\n+//; $desc =~ s/\n+$//;
+                # XXX format/rewrap
+                $pod .= "$desc\n\n";
+            }
         }
+        $pod .= "=back\n\n";
 
-        $pod .= "=item * $name".($ah0->{required} ? "*" : "")." => ";
-        if ($arg->{type} eq 'any') {
-            my @schemas = map {_parse_schema($_)} @{$ah0->{of}};
-            my @types   = map {$_->{type}} @schemas;
-            @types      = sort List::MoreUtils::uniq(@types);
-            $pod .= uc join("|", @types);
-        } else {
-            $pod .= uc $arg->{type};
-        }
-        $pod .= " (default ".
-            (defined($ah0->{default}) ?
-                 Data::Dump::Partial::dumpp($ah0->{default}) : "none").
-                       ")"
-                           if defined($ah0->{default});
-        $pod .= "\n\n";
+    } else {
 
-        $pod .= "One of:\n\n".
-            join("", map {" $_\n"} split /\n/,
-                 Data::Dump::dump($ah0->{choices}))."\n\n"
-                  if defined($ah0->{choices});
+        $pod .= "No known arguments at this time.\n\n";
 
-             #my $o = $ah0->{arg_pos};
-        #my $g = $ah0->{arg_greedy};
-
-        $pod .= "$ah0->{summary}.\n\n" if $ah0->{summary};
-
-        my $desc = $ah0->{description};
-        if ($desc) {
-            $desc =~ s/^\n+//; $desc =~ s/\n+$//;
-            # XXX format/rewrap
-            $pod .= "$desc\n\n";
-        }
     }
-    $pod .= "=back\n\n";
 
     $pod;
 }
@@ -150,11 +158,11 @@ Example output:
 
  =over 4
 
- =item * arg1* => int (default 0)
+ =item * arg1* => INT (default 0)
 
  Blah ...
 
- =item * arg2 => str (default none)
+ =item * arg2 => STR (default none)
 
  Blah blah ...
 
