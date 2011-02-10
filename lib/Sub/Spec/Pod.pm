@@ -29,7 +29,7 @@ sub _gen_sub_pod($;$) {
     my $pod = "";
 
     die "No name in spec" unless $sub_spec->{name};
-    $pod .= "=head2 $sub_spec->{name}(\%args) -> RES\n\n";
+    $pod .= "=head2 $sub_spec->{name}(\%args) -> RESP\n\n";
 
     $log->trace("Generating POD for $sub_spec->{name} ...");
 
@@ -158,7 +158,7 @@ __END__
 This module generates API POD documentation for all subs in specified module.
 Example output:
 
- =head2 sub1(%args) -> RES
+ =head2 sub1(%args) -> RESP
 
  Summary of sub1.
 
@@ -178,7 +178,7 @@ Example output:
 
  =back
 
- =head2 sub2(%args) -> RES
+ =head2 sub2(%args) -> RESP
 
  ...
 
