@@ -91,7 +91,7 @@ sub _gen_sub_pod($;$) {
                                if defined($ah0->{default});
             $pod .= "\n\n";
 
-            $pod .= "One of:\n\n".
+            $pod .= "Value must be one of:\n\n".
                 join("", map {" $_\n"} split /\n/,
                      Data::Dump::dump($ah0->{in}))."\n\n"
                            if defined($ah0->{in});
