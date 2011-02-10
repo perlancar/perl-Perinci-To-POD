@@ -68,18 +68,21 @@ sub _gen_sub_pod($;$) {
             }
 
             $pod .= "=item * $name".($ah0->{required} ? "*" : "")." => ";
+            my $type;
             if ($arg->{type} eq 'any') {
                 my @schemas = map {_parse_schema($_)} @{$ah0->{of}};
                 my @types   = map {$_->{type}} @schemas;
                 @types      = sort List::MoreUtils::uniq(@types);
-                $pod .= uc join("|", @types);
+                $type       = join("|", @types);
             } else {
-                $pod .= uc $arg->{type};
+                $type       = $arg->{type};
             }
+            $pod .= "I<$type>";
             $pod .= " (default ".
                 (defined($ah0->{default}) ?
-                     Data::Dump::Partial::dumpp($ah0->{default}) : "none").
-                           ")"
+                     "C<".Data::Dump::Partial::dumpp($ah0->{default}).">"
+                         : "none").
+                             ")"
                                if defined($ah0->{default});
             $pod .= "\n\n";
 
