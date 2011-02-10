@@ -61,7 +61,7 @@ sub _gen_sub_pod($;$) {
             if (!defined($prev_cat) || $prev_cat ne $cat) {
                 $pod .= ($cat ? ucfirst("$cat arguments") :
                              ($has_cat ? "General arguments":"Arguments")) .
-                                 " (* denotes required arguments):\n\n";
+                                 " (C<*> denotes required arguments):\n\n";
                 $pod .= "=back\n\n" if defined($prev_cat);
                 $pod .= "=over 4\n\n";
                 $prev_cat = $cat;
