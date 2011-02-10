@@ -103,9 +103,13 @@ sub gen_pod {
     my $module = $args{module};
 
     # require module and get specs
-    my $modulep = $module;
-    $modulep =~ s!::!/!g; $modulep .= ".pm";
+    my $modulep = $args{path};
+    if (!defined($modulep)) {
+        $modulep = $module;
+        $modulep =~ s!::!/!g; $modulep .= ".pm";
+    }
     if ($args{require} // 1) {
+        $log->trace("Attempting to require $modulep ...");
         eval { require $modulep };
         die $@ if $@;
     }
@@ -170,7 +174,19 @@ Arguments:
 
 =over 4
 
-=item * module* => STR
+=item * module => STR
+
+Module name to use. The module will be required if not already so.
+
+=item * path => STR
+
+Instruct the function to require the specified path instead of guessing from
+module name. Useful when you want to from a specific location (e.g. when
+building) and do not want to modify @INC.
+
+=item * require => BOOL (default 1)
+
+If set to 0, will not attempt to require the module.
 
 =back
 
