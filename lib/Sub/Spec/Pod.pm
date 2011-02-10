@@ -74,8 +74,9 @@ sub _gen_sub_pod($;$) {
         $pod .= " (default ".
             (defined($ah0->{default}) ?
                  Data::Dump::Partial::dumpp($ah0->{default}) : "none").
-                       ")\n\n"
+                       ")"
                            if defined($ah0->{default});
+        $pod .= "\n\n";
 
         $pod .= "One of: ".
             Data::Dump::Partial::dumpp($ah0->{choices})."\n\n"
