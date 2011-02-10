@@ -19,6 +19,7 @@ sub _parse_schema {
 }
 
 sub _gen_sub_pod($;$) {
+    require Data::Dump;
     require Data::Dump::Partial;
     require List::MoreUtils;
 
@@ -78,8 +79,9 @@ sub _gen_sub_pod($;$) {
                            if defined($ah0->{default});
         $pod .= "\n\n";
 
-        $pod .= "One of: ".
-            Data::Dump::Partial::dumpp($ah0->{choices})."\n\n"
+        $pod .= "One of:\n\n".
+            join("", map {" $_\n"} split /\n/,
+                 Data::Dump::dump($ah0->{choices}))."\n\n"
                   if defined($ah0->{choices});
 
              #my $o = $ah0->{arg_pos};
