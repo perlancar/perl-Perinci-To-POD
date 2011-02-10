@@ -72,7 +72,7 @@ sub _gen_sub_pod($;$) {
                 $prev_cat = $cat;
             }
 
-            $pod .= "=item * $name".($ah0->{required} ? "*" : "")." => ";
+            $pod .= "=item * B<$name>".($ah0->{required} ? "*" : "")." => ";
             my $type;
             if ($arg->{type} eq 'any') {
                 my @schemas = map {_parse_schema($_)} @{$ah0->{of}};
