@@ -43,6 +43,7 @@ sub _gen_sub_pod($;$) {
 
     my $args  = $sub_spec->{args} // {};
     my $rargs = $sub_spec->{required_args};
+    my $has_cat = grep { $_->[1]{arg_category} } values %$args;
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
 
     if (scalar keys %$args) {
@@ -58,8 +59,9 @@ sub _gen_sub_pod($;$) {
 
             my $cat = $ah0->{arg_category} // "";
             if (!defined($prev_cat) || $prev_cat ne $cat) {
-                $pod .= ($cat ? ucfirst("$cat arguments") : "Arguments") .
-                    " (* denotes required arguments):\n\n";
+                $pod .= ($cat ? ucfirst("$cat arguments") :
+                             ($has_cat ? "General arguments":"Arguments")) .
+                                 " (* denotes required arguments):\n\n";
                 $pod .= "=back\n\n" if defined($prev_cat);
                 $pod .= "=over 4\n\n";
                 $prev_cat = $cat;
