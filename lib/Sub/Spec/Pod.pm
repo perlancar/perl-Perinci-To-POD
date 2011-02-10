@@ -47,6 +47,7 @@ sub _gen_sub_pod($;$) {
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
 
     if (scalar keys %$args) {
+        my $noted_star_req;
         my $prev_cat;
         for my $name (sort {
             (($args->{$a}{attr_hashes}[0]{arg_category} // "") cmp
@@ -61,9 +62,10 @@ sub _gen_sub_pod($;$) {
             if (!defined($prev_cat) || $prev_cat ne $cat) {
                 $pod .= "=back\n\n" if defined($prev_cat);
                 $pod .= ($cat ? ucfirst("$cat arguments") :
-                             ($has_cat ? "General arguments":"Arguments")) .
-                                 " (C<*> denotes required arguments):\n\n";
-                $pod .= "=over 4\n\n";
+                             ($has_cat ? "General arguments":"Arguments"));
+                $pod .= " (C<*> denotes required arguments)"
+                    unless $noted_star_req++;
+                $pod .= ":\n\n=over 4\n\n";
                 $prev_cat = $cat;
             }
 
