@@ -90,8 +90,8 @@ sub _gen_sub_pod($;$) {
 
             $pod .= "One of:\n\n".
                 join("", map {" $_\n"} split /\n/,
-                     Data::Dump::dump($ah0->{choices}))."\n\n"
-                           if defined($ah0->{choices});
+                     Data::Dump::dump($ah0->{in}))."\n\n"
+                           if defined($ah0->{in});
 
             #my $o = $ah0->{arg_pos};
             #my $g = $ah0->{arg_greedy};
