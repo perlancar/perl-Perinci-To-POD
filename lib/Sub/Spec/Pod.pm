@@ -151,7 +151,7 @@ __END__
 
 =head1 SYNOPSIS
 
- perl -MSub::Spec::Pod=gen_pod -e'print gen_pod(module=>"MyModule")'
+ % perl -MSub::Spec::Pod=gen_pod -e'print gen_pod(module=>"MyModule")'
 
 =head1 DESCRIPTION
 
