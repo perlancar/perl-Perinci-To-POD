@@ -44,7 +44,6 @@ sub _gen_sub_pod($;$) {
     }
 
     my $args  = $sub_spec->{args} // {};
-    my $rargs = $sub_spec->{required_args};
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
     my $has_cat = grep { $_->{attr_hashes}[0]{arg_category} }
         values %$args;
