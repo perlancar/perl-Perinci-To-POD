@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use Log::Any '$log';
 
-use Sub::Spec::CmdLine; #tmp
+use Sub::Spec::CmdLine; #tmp, for _parse_schema
 
 require Exporter;
 our @ISA       = qw(Exporter);
