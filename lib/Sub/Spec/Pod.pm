@@ -29,9 +29,10 @@ sub _gen_sub_pod($;$) {
     my $pod = "";
 
     die "No name in spec" unless $sub_spec->{name};
-    $pod .= "=head2 $sub_spec->{name}(\%args) -> RESP\n\n";
-
     $log->trace("Generating POD for $sub_spec->{name} ...");
+
+    $pod .= "=head2 $sub_spec->{name}(\%args) -> ".
+        "[STATUSCODE, ERRMSG, RESULT]\n\n";
 
     if ($sub_spec->{summary}) {
         $pod .= "$sub_spec->{summary}.\n\n";
@@ -42,6 +43,13 @@ sub _gen_sub_pod($;$) {
         $desc =~ s/^\n+//; $desc =~ s/\n+$//;
         $pod .= "$desc\n\n";
     }
+
+    $pod .= <<'_';
+Returns a 3-element arrayref. STATUSCODE is 200 on success, or an error code
+between 3xx-5xx (just like in HTTP). ERRMSG is a string containing error
+message, RESULT is the actual result.
+
+_
 
     my $args  = $sub_spec->{args} // {};
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
@@ -157,7 +165,7 @@ __END__
 This module generates API POD documentation for all subs in specified module.
 Example output:
 
- =head2 sub1(%args) -> RESP
+ =head2 sub1(%args) -> [STATUSCODE, ERRORMSG, RESULT]
 
  Summary of sub1.
 
@@ -177,7 +185,7 @@ Example output:
 
  =back
 
- =head2 sub2(%args) -> RESP
+ =head2 sub2(%args) -> [STATUSCODE, ERRMSG, RESULT]
 
  ...
 
