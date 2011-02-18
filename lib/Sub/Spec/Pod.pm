@@ -98,6 +98,19 @@ _
                                if defined($ah0->{default});
             $pod .= "\n\n";
 
+            my $aliases = $ah0->{arg_aliases};
+            if ($aliases && keys %$aliases) {
+                $pod .= "Aliases: ";
+                my $i = 0;
+                for my $al (sort keys %$aliases) {
+                    $pod .= ", " if $i++;
+                    my $alinfo = $aliases->{$al};
+                    $pod .= "B<$al>".
+                        ($alinfo->{summary} ? " ($alinfo->{summary})" : "");
+                }
+                $pod .= "\n\n";
+            }
+
             $pod .= "Value must be one of:\n\n".
                 join("", map {" $_\n"} split /\n/,
                      Data::Dump::dump($ah0->{in}))."\n\n"
