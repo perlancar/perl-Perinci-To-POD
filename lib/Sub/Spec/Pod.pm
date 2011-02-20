@@ -155,8 +155,8 @@ sub gen_pod {
         die $@ if $@;
     }
     no strict 'refs';
-    my $specs = \%{$module."::SUBS"};
-    die "Can't find \%SUBS in package $module\n" unless $specs;
+    my $specs = \%{$module."::SPEC"};
+    die "Can't find \%SPEC in package $module\n" unless $specs;
 
     for (keys %$specs) {
         $specs->{$_}{_package} = $module;
