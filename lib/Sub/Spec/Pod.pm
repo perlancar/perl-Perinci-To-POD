@@ -6,16 +6,14 @@ use strict;
 use warnings;
 use Log::Any '$log';
 
-use Sub::Spec::CmdLine; #tmp, for _parse_schema
+use Sub::Spec::Utils; #tmp, for _parse_schema
 
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(gen_pod);
 
-# currently we cheat by only parsing a limited subset of schema. this is because
-# Data::Sah is not available yet.
 sub _parse_schema {
-    Sub::Spec::CmdLine::_parse_schema(@_);
+    Sub::Spec::Utils::_parse_schema(@_);
 }
 
 sub _gen_sub_pod($;$) {
