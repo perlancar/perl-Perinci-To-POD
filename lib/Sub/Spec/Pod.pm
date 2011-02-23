@@ -140,6 +140,7 @@ _
 sub gen_pod {
     my %args = @_;
     my $module = $args{module};
+    my $specs  = $args{specs};
 
     # require module and get specs
     my $modulep = $args{path};
@@ -147,18 +148,19 @@ sub gen_pod {
         $modulep = $module;
         $modulep =~ s!::!/!g; $modulep .= ".pm";
     }
-    if ($args{require} // 1) {
-        $log->trace("Attempting to require $modulep ...");
-        eval { require $modulep };
-        die $@ if $@;
+    if (!$specs) {
+        if ($args{load} // 1) {
+            $log->trace("Attempting to load $modulep ...");
+            eval { require $modulep };
+            die $@ if $@;
+        }
+        no strict 'refs';
+        my $specs = \%{$module."::SPEC"};
+        die "Can't find \%SPEC in package $module\n" unless $specs;
     }
-    no strict 'refs';
-    my $specs = \%{$module."::SPEC"};
-    die "Can't find \%SPEC in package $module\n" unless $specs;
-
     for (keys %$specs) {
-        $specs->{$_}{_package} = $module;
-        $specs->{$_}{name}     = $_;
+        $specs->{$_}{_package} //= $module;
+        $specs->{$_}{name}     //= $_;
     }
 
     join("", map { _gen_sub_pod($specs->{$_}) } sort keys %$specs);
@@ -209,21 +211,25 @@ None of the functions are exported by default, but they are exportable.
 
 Generate POD documentation.
 
-Arguments:
+Arguments (* denotes required argument):
 
 =over 4
 
-=item * module => STR
+=item * module* => STR
 
 Module name to use. The module will be required if not already so.
 
-=item * path => STR
+=item * path => STR (optional, default none)
 
 Instruct the function to require the specified path instead of guessing from
 module name. Useful when you want to from a specific location (e.g. when
 building) and do not want to modify @INC.
 
-=item * require => BOOL (default 1)
+=item * specs => HASHREF (optional, default none)
+
+Instead of trying to require the module to get the spec, use the supplied specs.
+
+=item * load => BOOL (optional, default 1)
 
 If set to 0, will not attempt to require the module.
 
