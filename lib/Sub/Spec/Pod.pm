@@ -22,6 +22,7 @@ sub _gen_sub_pod($;$) {
     require List::MoreUtils;
 
     my ($sub_spec, $opts) = @_;
+    $log->trace("-> _gen_sub_pod($sub_spec->{_package}::$sub_spec->{name})");
     $opts //= {};
 
     my $pod = "";
@@ -140,6 +141,7 @@ _
 
     }
 
+    $log->trace("<- _gen_sub_pod()");
     $pod;
 }
 
