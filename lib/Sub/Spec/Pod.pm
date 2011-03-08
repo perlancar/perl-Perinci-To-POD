@@ -163,9 +163,11 @@ sub gen_pod {
             die $@ if $@;
         }
         no strict 'refs';
-        my $specs = \%{$module."::SPEC"};
+        $specs = \%{$module."::SPEC"};
+        #$log->tracef("\%$module\::SPEC = %s", $specs);
         die "Can't find \%SPEC in package $module\n" unless $specs;
     }
+    $log->tracef("Functions that have spec: %s", [keys %$specs]);
     for (keys %$specs) {
         $specs->{$_}{_package} //= $module;
         $specs->{$_}{name}     //= $_;
