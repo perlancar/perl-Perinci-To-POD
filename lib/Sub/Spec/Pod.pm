@@ -212,6 +212,8 @@ Example output:
 
  ...
 
+This module uses L<Log::Any> logging framework.
+
 
 =head1 FUNCTIONS
 
