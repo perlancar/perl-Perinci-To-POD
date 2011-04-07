@@ -56,6 +56,38 @@ message, RESULT is the actual result.
 _
     }
 
+    my $features = $sub_spec->{features} // {};
+    if ($features->{reverse}) {
+        $pod .= <<'_';
+This function supports reverse operation. To reverse, add argument C<-reverse>
+=> 1.
+
+_
+    }
+    if ($features->{undo}) {
+        $pod .= <<'_';
+This function supports undo operation. To undo, add arguments C<-undo> => 1 and
+C<-state> => $state, where $state is a state object (see
+L<Sub::Spec::Clause::features> for more details on how to create a state
+object). Alternatively, you can run this function via L<Sub::Spec::Runner>.
+
+_
+    }
+    if ($features->{dry_run}) {
+        $pod .= <<'_';
+This function supports dry-run (simulation) mode. To run in dry-run mode, add
+argument C<-dry_run> => 1.
+
+_
+    }
+    if ($features->{pure}) {
+        $pod .= <<'_';
+This function is declared as pure, meaning it does not change any external state
+or have any side effects.
+
+_
+    }
+
     my $args  = $sub_spec->{args} // {};
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
     my $has_cat = grep { $_->{attr_hashes}[0]{arg_category} }
