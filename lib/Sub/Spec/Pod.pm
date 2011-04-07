@@ -66,10 +66,8 @@ _
     }
     if ($features->{undo}) {
         $pod .= <<'_';
-This function supports undo operation. To undo, add arguments C<-undo> => 1 and
-C<-state> => $state, where $state is a state object (see
-L<Sub::Spec::Clause::features> for more details on how to create a state
-object). Alternatively, you can run this function via L<Sub::Spec::Runner>.
+This function supports undo operation. See L<Sub::Spec::Clause::features> for
+details on how to perform do/undo/redo.
 
 _
     }
