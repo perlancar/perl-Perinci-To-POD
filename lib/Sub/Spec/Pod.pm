@@ -1,5 +1,5 @@
 package Sub::Spec::Pod;
-# ABSTRACT: Generate POD documentation for subs
+# ABSTRACT: Generate POD documentation from sub spec
 
 use 5.010;
 use strict;
@@ -215,7 +215,30 @@ __END__
 
 =head1 DESCRIPTION
 
-This module generates API POD documentation for all subs in specified module.
+This module generates API POD documentation from sub specs for all subs in
+specified module. Example specification:
+
+ our %SPEC;
+
+ $SPEC{sub1} = {
+     summary     => 'Summary of sub1.',
+     description => "Description of sub1 ...",
+     args        => {
+         arg1 => ['int*' => {
+             summary => 'Blah ...',
+             default => 0,
+         }],
+         arg2 => [str => {
+             summary => 'Blah blah ...',
+             ...
+         }
+     },
+ }
+ sub sub1 { ... }
+
+ $SPEC{sub2} = { ... };
+ sub sub2 { ... }
+
 Example output:
 
  =head2 sub1(%args) -> [STATUS_CODE, ERR_MSG, RESULT]
