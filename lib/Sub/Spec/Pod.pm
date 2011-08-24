@@ -88,20 +88,20 @@ _
 
     my $args  = $sub_spec->{args} // {};
     $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
-    my $has_cat = grep { $_->{attr_hashes}[0]{arg_category} }
+    my $has_cat = grep { $_->{clause_sets}[0]{arg_category} }
         values %$args;
 
     if (scalar keys %$args) {
         my $noted_star_req;
         my $prev_cat;
         for my $name (sort {
-            (($args->{$a}{attr_hashes}[0]{arg_category} // "") cmp
-                 ($args->{$b}{attr_hashes}[0]{arg_category} // "")) ||
-                     (($args->{$a}{attr_hashes}[0]{arg_pos} // 9999) <=>
-                          ($args->{$b}{attr_hashes}[0]{arg_pos} // 9999)) ||
+            (($args->{$a}{clause_sets}[0]{arg_category} // "") cmp
+                 ($args->{$b}{clause_sets}[0]{arg_category} // "")) ||
+                     (($args->{$a}{clause_sets}[0]{arg_pos} // 9999) <=>
+                          ($args->{$b}{clause_sets}[0]{arg_pos} // 9999)) ||
                               ($a cmp $b) } keys %$args) {
             my $arg = $args->{$name};
-            my $ah0 = $arg->{attr_hashes}[0];
+            my $ah0 = $arg->{clause_sets}[0];
 
             my $cat = $ah0->{arg_category} // "";
             if (!defined($prev_cat) || $prev_cat ne $cat) {
