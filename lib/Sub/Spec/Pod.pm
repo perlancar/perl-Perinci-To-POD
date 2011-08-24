@@ -1,5 +1,4 @@
-package Sub::Spec::Pod;
-# ABSTRACT: Generate POD documentation from sub spec
+package Sub::Spec::To::Pod;
 
 use 5.010;
 use strict;
@@ -10,20 +9,32 @@ use Sub::Spec::Utils; #tmp, for _parse_schema
 
 require Exporter;
 our @ISA       = qw(Exporter);
-our @EXPORT_OK = qw(gen_pod);
+our @EXPORT_OK = qw(spec_to_pod gen_module_subs_pod);
+
+# VERSION
+
+our %SPEC;
 
 sub _parse_schema {
     Sub::Spec::Utils::_parse_schema(@_);
 }
 
-sub _gen_sub_pod($;$) {
+$SPEC{spec_to_pod} = {
+    summary => 'Generate POD documentation from sub spec',
+    args => {
+        spec => ['hash*' => {}],
+    },
+    result_naked => 1,
+};
+sub spec_to_pod($;$) {
+    # to minimize startup overhead
     require Data::Dump;
     require Data::Dump::Partial;
     require List::MoreUtils;
 
-    my ($sub_spec, $opts) = @_;
-    $log->trace("-> _gen_sub_pod($sub_spec->{_package}::$sub_spec->{name})");
-    $opts //= {};
+    my %args = @_;
+    my $sub_spec = $args{spec} or return [400, "Please specify spec"];
+    $log->trace("-> spec_to_pod($sub_spec->{_package}::$sub_spec->{name})");
 
     my $pod = "";
 
@@ -171,13 +182,29 @@ _
 
     }
 
-    $log->trace("<- _gen_sub_pod()");
+    $log->trace("<- spec_to_usage()");
     $pod;
 }
 
-sub gen_pod {
+$SPEC{gen_module_subs_pod} = {
+    summary => '',
+    args => {
+        module => ['str*' => {}],
+        specs => ['hash' => {}],
+        load => ['bool' => {
+            summary => 'Whether to load module using "require"',
+            default => 1,
+        }],
+        path => ['str' => {
+            summary => 'Specify exact path to load module '.
+                '(instead of relying on @INC)',
+        }],
+    },
+    result_naked => 1,
+};
+sub gen_module_subs_pod {
     my %args = @_;
-    my $module = $args{module};
+    my $module = $args{module} or return [400, "Please specify module"];
     my $specs  = $args{specs};
 
     # require module and get specs
@@ -203,20 +230,23 @@ sub gen_pod {
         $specs->{$_}{name}     //= $_;
     }
 
-    join("", map { _gen_sub_pod($specs->{$_}) } sort keys %$specs);
+    join("", map { spec_to_usage(spec=>$specs->{$_}) } sort keys %$specs);
 }
 
 1;
+# ABSTRACT: Generate POD documentation from sub spec
 __END__
 
 =head1 SYNOPSIS
 
- % perl -MSub::Spec::Pod=gen_pod -e'print gen_pod(module=>"MyModule")'
+ % perl -MSub::Spec::To::Pod=gen_module_subs_pod \
+     -e'print gen_module_subs_pod(module=>"MyModule")'
+
 
 =head1 DESCRIPTION
 
-This module generates API POD documentation from sub specs for all subs in
-specified module. Example specification:
+This module generates API POD documentation from sub specs in a specified
+module. Example specification:
 
  our %SPEC;
 
@@ -272,37 +302,15 @@ This module uses L<Log::Any> logging framework.
 
 None of the functions are exported by default, but they are exportable.
 
-=head2 gen_pod(%args) -> POD
-
-Generate POD documentation.
-
-Arguments (* denotes required argument):
-
-=over 4
-
-=item * module* => STR
-
-Module name to use. The module will be required if not already so.
-
-=item * path => STR (optional, default none)
-
-Instruct the function to require the specified path instead of guessing from
-module name. Useful when you want to from a specific location (e.g. when
-building) and do not want to modify @INC.
-
-=item * specs => HASHREF (optional, default none)
-
-Instead of trying to require the module to get the spec, use the supplied specs.
-
-=item * load => BOOL (optional, default 1)
-
-If set to 0, will not attempt to require the module.
-
-=back
-
 
 =head1 SEE ALSO
 
 L<Sub::Spec>
+
+L<Sub::Spec::To::HTML>
+
+L<Sub::Spec::To::Org>
+
+L<Sub::Spec::To::Text>
 
 =cut
