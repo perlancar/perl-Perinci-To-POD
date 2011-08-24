@@ -230,7 +230,7 @@ sub gen_module_subs_pod {
         $specs->{$_}{name}     //= $_;
     }
 
-    join("", map { spec_to_usage(spec=>$specs->{$_}) } sort keys %$specs);
+    join("", map { spec_to_pod(spec=>$specs->{$_}) } sort keys %$specs);
 }
 
 1;
