@@ -6,6 +6,7 @@ use warnings;
 use Log::Any '$log';
 
 use Data::Sah::Util;
+use Lingua::EN::Numbers::Ordinate;
 
 require Exporter;
 our @ISA       = qw(Exporter);
@@ -31,6 +32,7 @@ sub spec_to_pod($;$) {
     require Data::Dump;
     require Data::Dump::Partial;
     require List::MoreUtils;
+    require Sub::Spec::Util;
 
     my %args = @_;
     my $sub_spec = $args{spec} or return [400, "Please specify spec"];
@@ -43,7 +45,9 @@ sub spec_to_pod($;$) {
 
     my $naked = $sub_spec->{result_naked};
 
-    $pod .= "=head2 $sub_spec->{name}(\%args) -> ".
+    my $pres = Sub::Spec::Util::parse_args_as($sub_spec->{args_as}//"hash");
+    my $args_var = $pres->{args_var};
+    $pod .= "=head2 $sub_spec->{name}($args_var) -> ".
         ($naked ? "RESULT" : "[STATUS_CODE, ERR_MSG, RESULT]")."\n\n";
 
     if ($sub_spec->{summary}) {
@@ -144,6 +148,30 @@ _
                                if defined($ah0->{default});
             $pod .= "\n\n";
 
+            my $args_as = $sub_spec->{args_as} // 'hash';
+            if ($args_as =~ /array/) {
+                my $pos = $ah0->{arg_pos};
+                my $greedy = $ah0->{arg_greedy};
+                if (defined $pos) {
+                    $pod .= ordinate($pos+1).
+                        ($greedy ? " to the last argument(s)" : " argument");
+                    if ($args_as =~ /ref/) {
+                        if ($greedy) {
+                            $pod .= " (\@{\$args}[$pos..last])";
+                        } else {
+                            $pod .= " (\$args->[$pos])";
+                        }
+                    } else {
+                        if ($greedy) {
+                            $pod .= " (\@args[$pos..last])";
+                        } else {
+                            $pod .= " (\$args[$pos])";
+                        }
+                    }
+                    $pod .= ".\n\n";
+                }
+            }
+
             my $aliases = $ah0->{arg_aliases};
             if ($aliases && keys %$aliases) {
                 $pod .= "Aliases: ";
@@ -154,7 +182,7 @@ _
                     $pod .= "B<$al>".
                         ($alinfo->{summary} ? " ($alinfo->{summary})" : "");
                 }
-                $pod .= "\n\n";
+                $pod .= ".\n\n";
             }
 
             $pod .= "Value must be one of:\n\n".
