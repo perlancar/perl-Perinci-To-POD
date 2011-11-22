@@ -5,7 +5,7 @@ use strict;
 use warnings;
 use Log::Any '$log';
 
-use Data::Sah::Util;
+use Data::Sah;
 use Lingua::EN::Numbers::Ordinate;
 
 require Exporter;
@@ -17,7 +17,7 @@ our @EXPORT_OK = qw(spec_to_pod gen_module_subs_pod);
 our %SPEC;
 
 sub _parse_schema {
-    Data::Sah::Util::_parse_schema(@_);
+    Data::Sah::normalize_schema($_[0]);
 }
 
 $SPEC{spec_to_pod} = {
