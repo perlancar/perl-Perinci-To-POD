@@ -1,4 +1,4 @@
-package Sub::Spec::To::Pod;
+package Sub::Spec::To::POD;
 
 use 5.010;
 use strict;
@@ -267,7 +267,7 @@ __END__
 
 =head1 SYNOPSIS
 
- % perl -MSub::Spec::To::Pod=gen_module_subs_pod \
+ % perl -MSub::Spec::To::POD=gen_module_subs_pod \
      -e'print gen_module_subs_pod(module=>"MyModule")'
 
 
