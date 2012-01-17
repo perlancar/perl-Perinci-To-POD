@@ -1,4 +1,4 @@
-package Sub::Spec::To::POD;
+package Rias::Sub::To::POD;
 
 use 5.010;
 use strict;
@@ -10,7 +10,7 @@ use Lingua::EN::Numbers::Ordinate;
 
 require Exporter;
 our @ISA       = qw(Exporter);
-our @EXPORT_OK = qw(spec_to_pod gen_module_subs_pod);
+our @EXPORT_OK = qw(meta_to_pod gen_module_functions_pod);
 
 # VERSION
 
@@ -20,14 +20,15 @@ sub _parse_schema {
     Data::Sah::normalize_schema($_[0]);
 }
 
-$SPEC{spec_to_pod} = {
-    summary => 'Generate POD documentation from sub spec',
+$SPEC{meta_to_pod} = {
+    v => 1.1,
+    summary => 'Generate POD documentation from function metadata',
     args => {
-        spec => ['hash*' => {}],
+        meta => {spec=>'hash*'},
     },
-    result_naked => 1,
+    result_envelope => 0,
 };
-sub spec_to_pod($;$) {
+sub meta_to_pod($;$) {
     # to minimize startup overhead
     require Data::Dump;
     require Data::Dump::Partial;
@@ -35,8 +36,8 @@ sub spec_to_pod($;$) {
     require Sub::Spec::Util;
 
     my %args = @_;
-    my $sub_spec = $args{spec} or return [400, "Please specify spec"];
-    $log->trace("-> spec_to_pod($sub_spec->{_package}::$sub_spec->{name})");
+    my $meta = $args{meta} or return [400, "Please specify spec"];
+    $log->trace("-> meta_to_pod($sub_spec->{_package}::$sub_spec->{name})");
 
     my $pod = "";
 
