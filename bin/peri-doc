@@ -1,0 +1,65 @@
+#!/usr/bin/perl
+
+package peri_doc; # to make PodWeaver happy
+
+use 5.010;
+use strict;
+use warnings;
+
+eval { require Perinci::CmdLine };
+if ($@) {
+    die "This script requires Perinci::CmdLine, please install it first.\n";
+}
+
+our %SPEC;
+
+$SPEC{generate_doc} = {
+    v => 1.1,
+    args => {
+        url => {
+            summary => 'URL',
+            req => 1,
+            pos => 0,
+            schema => 'str*',
+        },
+    },
+};
+sub generate_doc {
+    require Perinci::To::Text;
+
+    my %args = @_;
+    # XXX schema
+    my $url = $args{url} or return [400, "Please specify url"];
+
+    # XXX check if url is a module or function or ...
+
+    my $doc = Perinci::To::Text->new(url=>$url);
+    my $res = $doc->generate;
+
+    [200, "OK", $res, {"cmdline.page_result"=>1}];
+}
+
+Perinci::CmdLine->new(
+    url => '/peri_doc/generate_doc',
+)->run;
+
+# ABSTRACT: Display documentation of Riap code entities
+
+=head1 SYNOPSIS
+
+From command-line:
+
+ % peri-doc /Some/Module/
+ % peri-doc /Some/Module/function
+
+
+=head1 DESCRIPTION
+
+Currently displays documentation in plaintext. This may change in the future.
+
+
+=head1 SEE ALSO
+
+L<Perinci::To::Text>
+
+=cut
