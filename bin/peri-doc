@@ -40,6 +40,7 @@ sub generate_doc {
 }
 
 Perinci::CmdLine->new(
+    log_any_app => 0, # speed up star-tup
     url => '/peri_doc/generate_doc',
 )->run;
 
