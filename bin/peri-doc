@@ -55,7 +55,9 @@ From command-line:
 
 =head1 DESCRIPTION
 
-Currently displays documentation in plaintext. This may change in the future.
+Currently displays documentation in plaintext instead of manified POD, as
+L<Markdown::POD>'s startup is too slow for my taste (4.5s on my Atom netbook).
+This may change in the future.
 
 
 =head1 SEE ALSO
