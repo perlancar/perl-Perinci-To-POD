@@ -73,18 +73,9 @@ Perinci::CmdLine->new(
 From command-line:
 
  % peri-doc /Some/Module/
- % peri-doc /Some/Module/function
+ % peri-doc /Some/Module/function --format=text
 
 
 =head1 DESCRIPTION
-
-Currently displays documentation in plaintext instead of manified POD, as
-L<Markdown::POD>'s startup is too slow for my taste (4.5s on my Atom netbook).
-This may change in the future.
-
-
-=head1 SEE ALSO
-
-L<Perinci::To::Text>
 
 =cut
