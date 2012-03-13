@@ -6,6 +6,8 @@ use 5.010;
 use strict;
 use warnings;
 
+# VERSION
+
 eval { require Perinci::CmdLine };
 if ($@) {
     die "This script requires Perinci::CmdLine, please install it first.\n";
