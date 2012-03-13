@@ -1,5 +1,6 @@
-Revision history for Rias::Sub::To::POD
+Revision history for Perinci-To-POD
 
-0.21	 2012-01-16 (not yet released)
+0.21	 2012-03-13
 
-	 First release, moved from Sub::Spec::To::Pod.
+	 First release, renamed from Sub-Spec-To-Pod. Now follow Rinci/Riap
+	 specification.
