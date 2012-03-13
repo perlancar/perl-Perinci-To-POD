@@ -1,345 +1,150 @@
-package Rias::Sub::To::POD;
+package Perinci::To::POD;
 
 use 5.010;
-use strict;
-use warnings;
 use Log::Any '$log';
+use Moo;
 
-use Data::Sah;
-use Lingua::EN::Numbers::Ordinate;
-
-require Exporter;
-our @ISA       = qw(Exporter);
-our @EXPORT_OK = qw(meta_to_pod gen_module_functions_pod);
+extends 'Perinci::To::DocBase';
 
 # VERSION
 
-our %SPEC;
-
-sub _parse_schema {
-    Data::Sah::normalize_schema($_[0]);
+sub BUILD {
+    my ($self, $args) = @_;
 }
 
-$SPEC{meta_to_pod} = {
-    v => 1.1,
-    summary => 'Generate POD documentation from function metadata',
-    args => {
-        meta => {spec=>'hash*'},
-    },
-    result_envelope => 0,
-};
-sub meta_to_pod($;$) {
-    # to minimize startup overhead
-    require Data::Dump;
-    require Data::Dump::Partial;
-    require List::MoreUtils;
-    require Sub::Spec::Util;
+sub _md2pod {
+    require Markdown::Pod;
 
-    my %args = @_;
-    my $meta = $args{meta} or return [400, "Please specify spec"];
-    $log->trace("-> meta_to_pod($sub_spec->{_package}::$sub_spec->{name})");
-
-    my $pod = "";
-
-    die "No name in spec" unless $sub_spec->{name};
-    $log->trace("Generating POD for $sub_spec->{name} ...");
-
-    my $naked = $sub_spec->{result_naked};
-
-    my $pres = Sub::Spec::Util::parse_args_as($sub_spec->{args_as}//"hash");
-    my $args_var = $pres->{args_var};
-    $pod .= "=head2 $sub_spec->{name}($args_var) -> ".
-        ($naked ? "RESULT" : "[STATUS_CODE, ERR_MSG, RESULT]")."\n\n";
-
-    if ($sub_spec->{summary}) {
-        $pod .= "$sub_spec->{summary}.\n\n";
-    }
-
-    my $desc = $sub_spec->{description};
-    if ($desc) {
-        $desc =~ s/^\n+//; $desc =~ s/\n+$//;
-        $pod .= "$desc\n\n";
-    }
-
-    if ($naked) {
-
-    } else {
-        $pod .= <<'_';
-Returns a 3-element arrayref. STATUS_CODE is 200 on success, or an error code
-between 3xx-5xx (just like in HTTP). ERR_MSG is a string containing error
-message, RESULT is the actual result.
-
-_
-    }
-
-    my $features = $sub_spec->{features} // {};
-    if ($features->{reverse}) {
-        $pod .= <<'_';
-This function supports reverse operation. To reverse, add argument C<-reverse>
-=> 1.
-
-_
-    }
-    if ($features->{undo}) {
-        $pod .= <<'_';
-This function supports undo operation. See L<Sub::Spec::Clause::features> for
-details on how to perform do/undo/redo.
-
-_
-    }
-    if ($features->{dry_run}) {
-        $pod .= <<'_';
-This function supports dry-run (simulation) mode. To run in dry-run mode, add
-argument C<-dry_run> => 1.
-
-_
-    }
-    if ($features->{pure}) {
-        $pod .= <<'_';
-This function is declared as pure, meaning it does not change any external state
-or have any side effects.
-
-_
-    }
-
-    my $args  = $sub_spec->{args} // {};
-    $args = { map {$_ => _parse_schema($args->{$_})} keys %$args };
-    my $has_cat = grep { $_->{clause_sets}[0]{arg_category} }
-        values %$args;
-
-    if (scalar keys %$args) {
-        my $noted_star_req;
-        my $prev_cat;
-        for my $name (sort {
-            (($args->{$a}{clause_sets}[0]{arg_category} // "") cmp
-                 ($args->{$b}{clause_sets}[0]{arg_category} // "")) ||
-                     (($args->{$a}{clause_sets}[0]{arg_pos} // 9999) <=>
-                          ($args->{$b}{clause_sets}[0]{arg_pos} // 9999)) ||
-                              ($a cmp $b) } keys %$args) {
-            my $arg = $args->{$name};
-            my $ah0 = $arg->{clause_sets}[0];
-
-            my $cat = $ah0->{arg_category} // "";
-            if (!defined($prev_cat) || $prev_cat ne $cat) {
-                $pod .= "=back\n\n" if defined($prev_cat);
-                $pod .= ($cat ? ucfirst("$cat arguments") :
-                             ($has_cat ? "General arguments":"Arguments"));
-                $pod .= " (C<*> denotes required arguments)"
-                    unless $noted_star_req++;
-                $pod .= ":\n\n=over 4\n\n";
-                $prev_cat = $cat;
-            }
-
-            $pod .= "=item * B<$name>".($ah0->{req} ? "*" : "")." => ";
-            my $type;
-            if ($arg->{type} eq 'any') {
-                my @schemas = map {_parse_schema($_)} @{$ah0->{of}};
-                my @types   = map {$_->{type}} @schemas;
-                @types      = sort List::MoreUtils::uniq(@types);
-                $type       = join("|", @types);
-            } else {
-                $type       = $arg->{type};
-            }
-            $pod .= "I<$type>";
-            $pod .= " (default ".
-                (defined($ah0->{default}) ?
-                     "C<".Data::Dump::Partial::dumpp($ah0->{default}).">"
-                         : "none").
-                             ")"
-                               if defined($ah0->{default});
-            $pod .= "\n\n";
-
-            my $args_as = $sub_spec->{args_as} // 'hash';
-            if ($args_as =~ /array/) {
-                my $pos = $ah0->{arg_pos};
-                my $greedy = $ah0->{arg_greedy};
-                if (defined $pos) {
-                    $pod .= ordinate($pos+1).
-                        ($greedy ? " to the last argument(s)" : " argument");
-                    if ($args_as =~ /ref/) {
-                        if ($greedy) {
-                            $pod .= " (\@{\$args}[$pos..last])";
-                        } else {
-                            $pod .= " (\$args->[$pos])";
-                        }
-                    } else {
-                        if ($greedy) {
-                            $pod .= " (\@args[$pos..last])";
-                        } else {
-                            $pod .= " (\$args[$pos])";
-                        }
-                    }
-                    $pod .= ".\n\n";
-                }
-            }
-
-            my $aliases = $ah0->{arg_aliases};
-            if ($aliases && keys %$aliases) {
-                $pod .= "Aliases: ";
-                my $i = 0;
-                for my $al (sort keys %$aliases) {
-                    $pod .= ", " if $i++;
-                    my $alinfo = $aliases->{$al};
-                    $pod .= "B<$al>".
-                        ($alinfo->{summary} ? " ($alinfo->{summary})" : "");
-                }
-                $pod .= ".\n\n";
-            }
-
-            $pod .= "Value must be one of:\n\n".
-                join("", map {" $_\n"} split /\n/,
-                     Data::Dump::dump($ah0->{in}))."\n\n"
-                           if defined($ah0->{in});
-
-            #my $o = $ah0->{arg_pos};
-            #my $g = $ah0->{arg_greedy};
-
-            $pod .= "$ah0->{summary}.\n\n" if $ah0->{summary};
-
-            my $desc = $ah0->{description};
-            if ($desc) {
-                $desc =~ s/^\n+//; $desc =~ s/\n+$//;
-                # XXX format/rewrap
-                $pod .= "$desc\n\n";
-            }
-        }
-        $pod .= "=back\n\n";
-
-    } else {
-
-        $pod .= "No known arguments at this time.\n\n";
-
-    }
-
-    $log->trace("<- spec_to_usage()");
-    $pod;
+    my ($self, $md) = @_;
+    state $m2p = Markdown::Pod->new;
+    $m2p->markdown_to_pod(markdown => $md);
 }
 
-$SPEC{gen_module_subs_pod} = {
-    summary => '',
-    args => {
-        module => ['str*' => {}],
-        specs => ['hash' => {}],
-        load => ['bool' => {
-            summary => 'Whether to load module using "require"',
-            default => 1,
-        }],
-        path => ['str' => {
-            summary => 'Specify exact path to load module '.
-                '(instead of relying on @INC)',
-        }],
-    },
-    result_naked => 1,
-};
-sub gen_module_subs_pod {
-    my %args = @_;
-    my $module = $args{module} or return [400, "Please specify module"];
-    my $specs  = $args{specs};
+sub gen_summary {
+    my ($self) = @_;
 
-    # require module and get specs
-    my $modulep = $args{path};
-    if (!defined($modulep)) {
-        $modulep = $module;
-        $modulep =~ s!::!/!g; $modulep .= ".pm";
-    }
-    if (!$specs) {
-        if ($args{load} // 1) {
-            $log->trace("Attempting to load $modulep ...");
-            eval { require $modulep };
-            die $@ if $@;
+    my $name_summary = join(
+        "",
+        $self->_parse->{name} // "",
+        ($self->_parse->{name} && $self->_parse->{summary} ? ' - ' : ''),
+        $self->_parse->{summary} // ""
+    );
+
+    $self->add_lines(
+        "=head1 " . uc($self->loc("Name")),
+        "",
+        $name_summary,
+        "",
+    );
+}
+
+sub gen_version {
+    my ($self) = @_;
+
+    $self->add_lines(
+        "=head1 " . uc($self->loc("Version")),
+        "",
+        $self->{_meta}{pkg_version} // '?',
+        "",
+    );
+}
+
+sub gen_description {
+    my ($self) = @_;
+
+    return unless $self->_parse->{description};
+
+    $self->add_lines(
+        "=head1 " . uc($self->loc("Description")),
+        "",
+        $self->_md2pod($self->_parse->{description}),
+        "",
+    );
+}
+
+sub _gen_function {
+    my ($self, $url) = @_;
+    my $p = $self->_parse->{functions}{$url};
+
+    my $has_args = !!keys(%{$p->{args}});
+
+    $self->add_lines(
+        "=head2 " . $p->{name} .
+            ($has_args ? $p->{perl_args} : "()"). ' -> ' . $p->{human_ret},
+        "");
+
+    $self->add_lines($p->{summary} . ($p->{summary} =~ /\.$/ ? "" : "."), "")
+        if $p->{summary};
+    $self->add_lines($self->_md2pod($p->{description}), "")
+        if $p->{description};
+    if ($has_args) {
+        $self->add_lines(
+            $self->loc("Arguments") .
+                ' (' . $self->loc("'*' denotes required arguments") . '):',
+            "",
+            "=over 4",
+            "",
+        );
+        for my $name (sort keys %{$p->{args}}) {
+            my $pa = $p->{args}{$name};
+            $self->add_lines(join(
+                "",
+                "=item * B<", $name, ">",
+                ($pa->{schema}[1]{req} ? '*' : ''), ' => ',
+                "I<", $pa->{human_arg}, ">",
+                (defined($pa->{human_arg_default}) ?
+                     " (" . $self->loc("default") .
+                         ": $pa->{human_arg_default})" : "")
+            ), "");
+            $self->add_lines(
+                $pa->{summary} . ($p->{summary} =~ /\.$/ ? "" : "."),
+                "") if $pa->{summary};
+            $self->add_lines(
+                $self->_md2pod($pa->{description}),
+                "") if $pa->{description};
         }
-        no strict 'refs';
-        $specs = \%{$module."::SPEC"};
-        #$log->tracef("\%$module\::SPEC = %s", $specs);
-        die "Can't find \%SPEC in package $module\n" unless $specs;
+        $self->add_lines("=back", "");
+    } else {
+        $self->add_lines($self->loc("No arguments") . ".", "");
     }
-    $log->tracef("Functions that have spec: %s", [keys %$specs]);
-    for (keys %$specs) {
-        $specs->{$_}{_package} //= $module;
-        $specs->{$_}{name}     //= $_;
+    $self->add_lines($self->loc("Return value") . ':', "");
+    $self->add_lines($self->_md2pod($self->loc(join(
+        "",
+        "Returns an enveloped result (an array). ",
+        "First element (status) is an integer containing HTTP status code ",
+        "(200 means OK, 4xx caller error, 5xx function error). Second element ",
+        "(msg) is a string containing error message, or 'OK' if status is ",
+        "200. Third element (result) is optional, the actual result. Fourth ",
+        "element (meta) is called result metadata and is optional, a hash ",
+        "that contains extra information."))), "")
+        unless $p->{schema}{result_naked};
+
+    # XXX result summary
+
+    # XXX result description
+
+    # test
+    #$self->add_lines({wrap=>0}, "Line 1\nLine 2\n");
+}
+
+sub gen_functions {
+    my ($self) = @_;
+    my $pff = $self->_parse->{functions};
+
+    $self->add_lines(
+        "=head1 " . uc($self->loc("Functions")),
+        "",
+    );
+
+    # XXX categorize functions based on tags
+    for my $url (sort keys %$pff) {
+        my $p = $pff->{$url};
+        $self->_gen_function($url);
     }
 
-    join("", map { spec_to_pod(spec=>$specs->{$_}) } sort keys %$specs);
 }
 
 1;
-# ABSTRACT: Generate POD documentation from sub spec
-__END__
-
-=head1 SYNOPSIS
-
- % perl -MSub::Spec::To::POD=gen_module_subs_pod \
-     -e'print gen_module_subs_pod(module=>"MyModule")'
-
-
-=head1 DESCRIPTION
-
-This module generates API POD documentation from sub specs in a specified
-module. Example specification:
-
- our %SPEC;
-
- $SPEC{sub1} = {
-     summary     => 'Summary of sub1.',
-     description => "Description of sub1 ...",
-     args        => {
-         arg1 => ['int*' => {
-             summary => 'Blah ...',
-             default => 0,
-         }],
-         arg2 => [str => {
-             summary => 'Blah blah ...',
-             ...
-         }
-     },
- }
- sub sub1 { ... }
-
- $SPEC{sub2} = { ... };
- sub sub2 { ... }
-
-Example output:
-
- =head2 sub1(%args) -> [STATUS_CODE, ERR_MSG, RESULT]
-
- Summary of sub1.
-
- Description of sub1...
-
- Arguments (* denotes required arguments):
-
- =over 4
-
- =item * arg1* => INT (default 0)
-
- Blah ...
-
- =item * arg2 => STR (default none)
-
- Blah blah ...
-
- =back
-
- =head2 sub2(%args) -> [STATUS_CODE, ERR_MSG, RESULT]
-
- ...
-
-This module uses L<Log::Any> logging framework.
-
-
-=head1 FUNCTIONS
-
-None of the functions are exported by default, but they are exportable.
-
-
-=head1 SEE ALSO
-
-L<Sub::Spec>
-
-L<Sub::Spec::To::HTML>
-
-L<Sub::Spec::To::Org>
-
-L<Sub::Spec::To::Text>
+# ABSTRACT: Generate POD documentation from Rinci metadata
 
 =cut

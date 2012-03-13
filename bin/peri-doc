@@ -22,21 +22,43 @@ $SPEC{generate_doc} = {
             pos => 0,
             schema => 'str*',
         },
+        format => {
+            summary => 'Format',
+            schema => 'str',
+        },
     },
 };
 sub generate_doc {
-    require Perinci::To::Text;
+    require File::Which;
 
     my %args = @_;
     # XXX schema
     my $url = $args{url} or return [400, "Please specify url"];
 
+    my $format = $args{format} // "man";
+    $format = "text" unless File::Which::which("man");
+
     # XXX check if url is a module or function or ...
 
-    my $doc = Perinci::To::Text->new(url=>$url);
-    my $res = $doc->generate;
+    my ($doc, $res);
+    if ($format eq 'man') {
+        require IPC::Open2;
+        require Perinci::To::POD;
+        $doc = Perinci::To::POD->new(url=>$url);
+        $res = $doc->generate;
 
-    [200, "OK", $res, {"cmdline.page_result"=>1}];
+        open my($man), '| pod2man | man -l -';
+        print $man $res;
+        close $man;
+
+        [200, "OK"];
+    } else {
+        require Perinci::To::Text;
+        $doc = Perinci::To::Text->new(url=>$url);
+        $res = $doc->generate;
+        [200, "OK", $res, {"cmdline.page_result"=>1}];
+    }
+
 }
 
 Perinci::CmdLine->new(
