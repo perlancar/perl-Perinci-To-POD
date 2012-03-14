@@ -145,6 +145,6 @@ sub gen_functions {
 }
 
 1;
-# ABSTRACT: Generate POD documentation from Rinci metadata
+# ABSTRACT: Generate POD documentation from Rinci package metadata
 
 =cut
