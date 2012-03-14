@@ -1,6 +1,6 @@
 package Perinci::To::POD::I18N;
 
-use base 'Perinci::To::DocBase::I18N';
+use base 'Perinci::To::PackageBase::I18N';
 
 # VERSION
 

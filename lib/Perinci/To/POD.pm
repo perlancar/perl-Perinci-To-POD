@@ -4,7 +4,7 @@ use 5.010;
 use Log::Any '$log';
 use Moo;
 
-extends 'Perinci::To::DocBase';
+extends 'Perinci::To::PackageBase';
 
 # VERSION
 
