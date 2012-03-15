@@ -47,14 +47,14 @@ sub generate_doc {
     if ($format eq 'man') {
         require Perinci::To::POD;
         $doc = Perinci::To::POD->new(url=>$url);
-        $res = $doc->generate;
+        $res = $doc->generate_doc;
         [200, "OK", $res, {
             "cmdline.page_result"=>1,
             "cmdline.pager"=>"pod2man | man -l -"}];
     } else {
         require Perinci::To::Text;
         $doc = Perinci::To::Text->new(url=>$url);
-        $res = $doc->generate;
+        $res = $doc->generate_doc;
         [200, "OK", $res, {"cmdline.page_result"=>1}];
     }
 
