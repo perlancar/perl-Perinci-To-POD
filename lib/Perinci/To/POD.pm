@@ -52,12 +52,20 @@ sub doc_gen_version {
 sub doc_gen_description {
     my ($self) = @_;
 
-    return unless $self->doc_parse->{description};
-
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Description")),
-        "",
-        $self->_md2pod($self->doc_parse->{description}),
+        ""
+    );
+
+    if ($self->doc_parse->{description}) {
+        $self->add_doc_lines(
+            $self->_md2pod($self->doc_parse->{description}),
+            "",
+        );
+    }
+
+    $self->add_doc_lines(
+        $self->loc("This module has L<Rinci> metadata") . ".",
         "",
     );
 }
@@ -133,6 +141,13 @@ sub doc_gen_functions {
 
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Functions")),
+        "",
+    );
+
+    # temporary, since we don't parse export information yet (and
+    # Perinci::Exporter is not yet written anyway)
+    $self->add_doc_lines(
+        $self->loc("None are exported by default, but they are exportable."),
         "",
     );
 
