@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-package peri_doc; # to make PodWeaver happy
-
 use 5.010;
 use strict;
 use warnings;
@@ -62,10 +60,11 @@ sub generate_doc {
 
 Perinci::CmdLine->new(
     log_any_app => 0, # speed up star-tup
-    url => '/peri_doc/generate_doc',
+    url => '/main/generate_doc',
 )->run;
 
 # ABSTRACT: Display documentation of Riap code entities
+# PODNAME: peri-doc
 
 =head1 SYNOPSIS
 
