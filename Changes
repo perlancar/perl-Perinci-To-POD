@@ -1,16 +1,21 @@
 Revision history for Perinci-To-POD
 
-0.23	 2012-03-15
+0.24	 2012-06-20 (SHARYANTO)
+
+	 Explain function features.
+
+
+0.23	 2012-03-15 (SHARYANTO)
 
 	 No functional change. Update to using newer Perinci::To::PackageBase.
 
 
-0.22	 2012-03-14
+0.22	 2012-03-14 (SHARYANTO)
 
 	 No functional change. Update to using Perinci::To::PackageBase.
 
 
-0.21	 2012-03-13
+0.21	 2012-03-13 (SHARYANTO)
 
 	 First release, renamed from Sub-Spec-To-Pod. Now follow Rinci/Riap
 	 specification.
