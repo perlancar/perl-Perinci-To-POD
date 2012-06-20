@@ -88,12 +88,41 @@ sub _fdoc_gen {
 
     my $feat = $p->{meta}{features} // {};
     my @ft;
-    push @ft, $self->loc("This function supports reverse operation.")
-        if $feat->{reverse};
-    push @ft, $self->loc("This function supports undo operation.")
-        if $feat->{undo};
-    push @ft, $self->loc("This function supports dry-run operation.")
-        if $feat->{dry_run};
+    my %spargs;
+    if ($feat->{reverse}) {
+        push @ft, $self->loc("This function supports reverse operation.");
+        $spargs{-reverse} = {
+            type => 'bool',
+            summary => $self->loc("Pass -reverse=>1 to reverse operation."),
+        };
+    }
+    if ($feat->{undo}) {
+        push @ft, $self->loc("This function supports undo operation.");
+        $spargs{-undo_action} = {
+            type => 'str',
+            summary => $self->loc(join(
+                "",
+                "To undo, pass -undo_action=>'undo' to function. ",
+                "You will also need to pass -undo_data, unless you use ",
+                "transaction. For more details on undo protocol, ",
+                "see L<Rinci::function::Undo>.")),
+        };
+        $spargs{-undo_data} = {
+            type => 'array',
+            summary => $self->loc(join(
+                "",
+                "Required if you want undo and you do not use transaction. ",
+                "For more details on undo protocol, ",
+                "see L<Rinci::function::Undo>.")),
+        };
+    }
+    if ($feat->{dry_run}) {
+        push @ft, $self->loc("This function supports dry-run operation.");
+        $spargs{-dry_run} = {
+            type => 'bool',
+            summary=>$self->loc("Pass -dry_run=>1 to enable simulation mode."),
+        };
+    }
     push @ft, $self->loc("This function is pure (produce no side effects).")
         if $feat->{pure};
     push @ft, $self->loc("This function is immutable (returns same result ".
@@ -112,7 +141,28 @@ sub _fdoc_gen {
         if $feat->{tx} && $feat->{tx}{start};
     push @ft, $self->loc("This function can end (commit) transactions.")
         if $feat->{tx} && $feat->{tx}{end};
-
+    if ($feat->{tx}) {
+        $spargs{-tx_manager} = {
+            type => 'obj',
+            summary => $self->loc(join(
+                "",
+                "Instance of transaction manager object, ",
+                "usually L<Perinci::Tx::Manager>. Usually you do not have to ",
+                "pass this yourself, L<Perinci::Access::InProcess> will do it ",
+                "for you. For more details on transactions, see ",
+                "L<Rinci::function::Transaction>.")),
+        },
+        $spargs{-tx_action} = {
+            type => 'str',
+            summary => $self->loc(join(
+                "",
+                "You currently can set this to 'rollback'. ",
+                "Usually you do not have to ",
+                "pass this yourself, L<Perinci::Access::InProcess> will do it ",
+                "for you. For more details on transactions, see ",
+                "L<Rinci::function::Transaction>.")),
+        },
+    }
     $self->add_doc_lines(join(" ", @ft), "", "") if @ft;
 
     if ($has_args) {
@@ -135,7 +185,7 @@ sub _fdoc_gen {
                          ": $pa->{human_arg_default})" : "")
             ), "");
             $self->add_doc_lines(
-                $pa->{summary} . ($p->{summary} =~ /\.$/ ? "" : "."),
+                $pa->{summary} . ($pa->{summary} =~ /\.$/ ? "" : "."),
                 "") if $pa->{summary};
             $self->add_doc_lines(
                 $self->_md2pod($pa->{description}),
@@ -145,6 +195,32 @@ sub _fdoc_gen {
     } else {
         $self->add_doc_lines($self->loc("No arguments") . ".", "");
     }
+
+    if (keys %spargs) {
+        $self->add_doc_lines(
+            $self->loc("Special arguments") . ":",
+            "",
+            "=over 4",
+            "",
+        );
+        for my $name (sort keys %spargs) {
+            my $spa = $spargs{$name};
+            $self->add_doc_lines(join(
+                "",
+                "=item * B<", $name, ">",
+                ' => ',
+                "I<", $spa->{type}, ">",
+                (defined($spa->{default}) ?
+                     " (" . $self->loc("default") .
+                         ": $spa->{default})" : "")
+            ), "");
+            $self->add_doc_lines(
+                $spa->{summary} . ($spa->{summary} =~ /\.$/ ? "" : "."),
+                "") if $spa->{summary};
+        }
+        $self->add_doc_lines("=back", "");
+    }
+
     $self->add_doc_lines($self->loc("Return value") . ':', "");
     $self->add_doc_lines($self->_md2pod($self->loc(join(
         "",
