@@ -85,6 +85,36 @@ sub _fdoc_gen {
         if $p->{summary};
     $self->add_doc_lines($self->_md2pod($p->{description}), "")
         if $p->{description};
+
+    my $feat = $p->{meta}{features} // {};
+    my @ft;
+    push @ft, $self->loc("This function supports reverse operation.")
+        if $feat->{reverse};
+    push @ft, $self->loc("This function supports undo operation.")
+        if $feat->{undo};
+    push @ft, $self->loc("This function supports dry-run operation.")
+        if $feat->{dry_run};
+    push @ft, $self->loc("This function is pure (produce no side effects).")
+        if $feat->{pure};
+    push @ft, $self->loc("This function is immutable (returns same result ".
+                             "for same arguments).")
+        if $feat->{immutable};
+    push @ft, $self->loc("This function is idempotent (repeated invocations ".
+                             "with same arguments has the same effect as ".
+                                 "single invocation).")
+        if $feat->{idempotent};
+    if ($feat->{tx} && $feat->{tx}{req}) {
+        push @ft, $self->loc("This function requires transactions.");
+    } elsif ($feat->{tx} && $feat->{tx}{use}) {
+        push @ft, $self->loc("This function can use transactions.")
+    }
+    push @ft, $self->loc("This function can start a new transaction.")
+        if $feat->{tx} && $feat->{tx}{start};
+    push @ft, $self->loc("This function can end (commit) transactions.")
+        if $feat->{tx} && $feat->{tx}{end};
+
+    $self->add_doc_lines(join(" ", @ft), "", "") if @ft;
+
     if ($has_args) {
         $self->add_doc_lines(
             $self->loc("Arguments") .
