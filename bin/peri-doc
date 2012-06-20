@@ -71,7 +71,7 @@ Perinci::CmdLine->new(
 From command-line:
 
  % peri-doc /Some/Module/
- % peri-doc /Some/Module/function --format=text
+ % peri-doc --help
 
 
 =head1 DESCRIPTION
