@@ -44,7 +44,7 @@ sub doc_gen_version {
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Version")),
         "",
-        $self->{_meta}{pkg_version} // '?',
+        $self->{_meta}{entity_version} // '?',
         "",
     );
 }
