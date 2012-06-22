@@ -1,5 +1,10 @@
 Revision history for Perinci-To-POD
 
+0.26	 2012-06-22 (SHARYANTO)
+
+	 Update to Rinci 1.1.11 (pkg_version -> entity_version).
+
+
 0.25	 2012-06-20 (SHARYANTO)
 
 	 Explain possible special arguments.
