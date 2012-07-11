@@ -178,7 +178,7 @@ sub _fdoc_gen {
             $self->add_doc_lines(join(
                 "",
                 "=item * B<", $name, ">",
-                ($pa->{schema}[1]{req} ? '*' : ''), ' => ',
+                ($pa->{req} ? '*' : ''), ' => ',
                 "I<", $pa->{human_arg}, ">",
                 (defined($pa->{human_arg_default}) ?
                      " (" . $self->loc("default") .
