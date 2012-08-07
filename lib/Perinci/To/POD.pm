@@ -258,6 +258,8 @@ sub doc_gen_functions {
         "",
     );
 
+    # XXX if module uses Perinci::Exporter, show a basic usage for importing
+
     # XXX categorize functions based on tags
     for my $url (sort keys %$pff) {
         my $p = $pff->{$url};
