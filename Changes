@@ -1,5 +1,11 @@
 Revision history for Perinci-To-POD
 
+0.27	 2012-09-05 (SHARYANTO)
+
+	 Update to Rinci 1.1.29 (transaction protocol v=2, older v not
+	 supported).
+
+
 0.26	 2012-06-22 (SHARYANTO)
 
 	 Update to Rinci 1.1.11 (pkg_version -> entity_version).
