@@ -103,15 +103,15 @@ sub _fdoc_gen {
             summary => $self->loc(join(
                 "",
                 "To undo, pass -undo_action=>'undo' to function. ",
-                "You will also need to pass -undo_data, unless you use ",
-                "transaction. For more details on undo protocol, ",
-                "see L<Rinci::function::Undo>.")),
+                "You will also need to pass -undo_data. ",
+                "For more details on undo protocol, ",
+                "see L<Rinci::Undo>.")),
         };
         $spargs{-undo_data} = {
             type => 'array',
             summary => $self->loc(join(
                 "",
-                "Required if you want undo and you do not use transaction. ",
+                "Required if you pass -undo_action=>'undo'. ",
                 "For more details on undo protocol, ",
                 "see L<Rinci::function::Undo>.")),
         };
@@ -132,36 +132,17 @@ sub _fdoc_gen {
                              "with same arguments has the same effect as ".
                                  "single invocation).")
         if $feat->{idempotent};
-    if ($feat->{tx} && $feat->{tx}{req}) {
-        push @ft, $self->loc("This function requires transactions.");
-    } elsif ($feat->{tx} && $feat->{tx}{use}) {
-        push @ft, $self->loc("This function can use transactions.")
-    }
-    push @ft, $self->loc("This function can start a new transaction.")
-        if $feat->{tx} && $feat->{tx}{start};
-    push @ft, $self->loc("This function can end (commit) transactions.")
-        if $feat->{tx} && $feat->{tx}{end};
     if ($feat->{tx}) {
-        $spargs{-tx_manager} = {
-            type => 'obj',
-            summary => $self->loc(join(
-                "",
-                "Instance of transaction manager object, ",
-                "usually L<Perinci::Tx::Manager>. Usually you do not have to ",
-                "pass this yourself, L<Perinci::Access::InProcess> will do it ",
-                "for you. For more details on transactions, see ",
-                "L<Rinci::function::Transaction>.")),
-        },
-        $spargs{-tx_action} = {
+        die "Sorry, I only support transaction protocol v=2"
+            unless $feat->{tx}{v} == 2;
+        push @ft, $self->loc("This function supports transactions.");
+        $spargs{$_} = {
             type => 'str',
             summary => $self->loc(join(
                 "",
-                "You currently can set this to 'rollback'. ",
-                "Usually you do not have to ",
-                "pass this yourself, L<Perinci::Access::InProcess> will do it ",
-                "for you. For more details on transactions, see ",
-                "L<Rinci::function::Transaction>.")),
-        },
+                "For more information on transaction, see ",
+                "L<Rinci::Transaction>.")),
+        } for qw(-tx_action -tx_action_id -tx_v -tx_is_rollback),
     }
     $self->add_doc_lines(join(" ", @ft), "", "") if @ft;
 
