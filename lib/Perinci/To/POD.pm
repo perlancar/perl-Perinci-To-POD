@@ -142,7 +142,7 @@ sub _fdoc_gen {
                 "",
                 "For more information on transaction, see ",
                 "L<Rinci::Transaction>.")),
-        } for qw(-tx_action -tx_action_id -tx_v -tx_is_rollback),
+        } for qw(-tx_action -tx_action_id -tx_v -tx_rollback -tx_recovery),
     }
     $self->add_doc_lines(join(" ", @ft), "", "") if @ft;
 
