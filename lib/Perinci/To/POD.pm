@@ -64,10 +64,10 @@ sub doc_gen_description {
         );
     }
 
-    $self->add_doc_lines(
-        $self->loc("This module has L<Rinci> metadata") . ".",
-        "",
-    );
+    #$self->add_doc_lines(
+    #    $self->loc("This module has L<Rinci> metadata") . ".",
+    #    "",
+    #);
 }
 
 sub _fdoc_gen {
