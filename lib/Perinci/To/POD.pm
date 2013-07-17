@@ -252,4 +252,17 @@ sub doc_gen_functions {
 1;
 # ABSTRACT: Generate POD documentation from Rinci package metadata
 
+=head1 SYNOPSIS
+
+You can use the included L<peri-pod> script, or:
+
+ use Perinci::To::POD;
+
+ # to generate POD for the whole module
+ my $doc = Perinci::To::POD->new(url => "/Some/Module/");
+ say $doc->generate_doc;
+
+ # to generate POD for a certain function only, currently you can parse/cut the
+ # whole module POD by yourself.
+
 =cut
