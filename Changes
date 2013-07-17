@@ -1,5 +1,13 @@
 Revision history for Perinci-To-POD
 
+0.29	 2013-07-17 (SHARYANTO)
+
+	 [BUG FIXES]
+
+         - bin/peri-doc: Make --format work (previously it's overridden by
+           Perinci::CmdLine's common option --format).
+
+
 0.28	 2012-09-05 (SHARYANTO)
 
 	 Fix list of special arguments for transaction.
