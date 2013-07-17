@@ -59,7 +59,7 @@ sub generate_doc {
 }
 
 Perinci::CmdLine->new(
-    log_any_app => 0, # speed up star-tup
+    log_any_app => 0, # speed up start-up
     url => '/main/generate_doc',
 )->run;
 
