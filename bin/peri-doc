@@ -58,10 +58,13 @@ sub generate_doc {
 
 }
 
-Perinci::CmdLine->new(
+my $cmd = Perinci::CmdLine->new(
     log_any_app => 0, # speed up start-up
     url => '/main/generate_doc',
-)->run;
+);
+delete $cmd->common_opts->{format};
+delete $cmd->common_opts->{format_options};
+$cmd->run;
 
 # ABSTRACT: Display documentation of Riap code entities
 # PODNAME: peri-doc
