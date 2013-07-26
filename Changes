@@ -1,5 +1,15 @@
 Revision history for Perinci-To-POD
 
+0.30	 2013-07-26 (SHARYANTO)
+
+         - Split bin/peri-doc to bin/peri-pkg-doc and bin/peri-func-doc (in
+           Perinci-Sub-To-POD).
+
+         - bin/peri-pkg-doc: Allow enabling logging using LOG=1.
+
+         - Update to using Perinci::To::PackageBase 0.20.
+
+
 0.29	 2013-07-17 (SHARYANTO)
 
 	 [BUG FIXES]

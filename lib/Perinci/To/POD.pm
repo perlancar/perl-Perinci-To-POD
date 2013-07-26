@@ -105,7 +105,10 @@ sub gen_doc_section_functions {
     for my $furi (sort keys %{ $res->{functions} }) {
         my $fname;
         for ($fname) { $_ = $furi; s!.+/!! }
-        $self->add_doc_lines($res->{functions}{$furi});
+        for (@{ $res->{functions}{$furi} }) {
+            chomp;
+            $self->add_doc_lines($_);
+        }
     }
 }
 
