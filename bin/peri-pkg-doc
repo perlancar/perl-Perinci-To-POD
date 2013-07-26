@@ -66,7 +66,7 @@ delete $cmd->common_opts->{format};
 delete $cmd->common_opts->{format_options};
 $cmd->run;
 
-# ABSTRACT: Display documentation of Riap package
+# ABSTRACT: Display text/POD documentation of Riap package
 # PODNAME: peri-pkg-doc
 
 =head1 SYNOPSIS
@@ -74,15 +74,15 @@ $cmd->run;
 From command-line:
 
  % peri-pkg-doc /Some/Module/
- % peri-pkg-doc https://example.com/api/
+ % peri-pkg-doc --format=text https://example.com/api/
  % peri-pkg-doc --help
 
 
 =head1 DESCRIPTION
 
-This script will generate documentation for a Riap package. All information
-about entities like functions and variables in the package will be retrieved and
-displayed as well. The end result looks similar to a POD documentation for a
-Perl module.
+This script will generate text/POD documentation for a Riap package. All
+information about entities like functions and variables in the package will be
+retrieved and displayed as well. The end result looks similar to a POD
+documentation for a Perl module.
 
 =cut
