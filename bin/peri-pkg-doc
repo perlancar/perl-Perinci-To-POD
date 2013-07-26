@@ -13,7 +13,7 @@ if ($@) {
 
 our %SPEC;
 
-$SPEC{generate_doc} = {
+$SPEC{gen_doc} = {
     v => 1.1,
     args => {
         url => {
@@ -28,7 +28,7 @@ $SPEC{generate_doc} = {
         },
     },
 };
-sub generate_doc {
+sub gen_doc {
     require File::Which;
 
     my %args = @_;
@@ -45,14 +45,14 @@ sub generate_doc {
     if ($format eq 'man') {
         require Perinci::To::POD;
         $doc = Perinci::To::POD->new(url=>$url);
-        $res = $doc->generate_doc;
+        $res = $doc->gen_doc;
         [200, "OK", $res, {
             "cmdline.page_result"=>1,
             "cmdline.pager"=>"pod2man | man -l -"}];
     } else {
         require Perinci::To::Text;
         $doc = Perinci::To::Text->new(url=>$url);
-        $res = $doc->generate_doc;
+        $res = $doc->gen_doc;
         [200, "OK", $res, {"cmdline.page_result"=>1}];
     }
 
@@ -60,7 +60,7 @@ sub generate_doc {
 
 $ENV{LOG} //= 0; # speed up startup, but allow overriding
 my $cmd = Perinci::CmdLine->new(
-    url => '/main/generate_doc',
+    url => '/main/gen_doc',
 );
 delete $cmd->common_opts->{format};
 delete $cmd->common_opts->{format_options};
