@@ -1,4 +1,4 @@
 #!/usr/bin/perl
 
-print "This script has been split peri-func-doc and peri-pkg-doc\n";
+print "This script has been split to peri-func-doc and peri-pkg-doc. Please run one of those scripts.\n";
 exit 0;
