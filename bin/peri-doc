@@ -58,8 +58,8 @@ sub generate_doc {
 
 }
 
+$ENV{LOG} //= 0; # speed up startup, but allow overriding
 my $cmd = Perinci::CmdLine->new(
-    log_any_app => 0, # speed up start-up
     url => '/main/generate_doc',
 );
 delete $cmd->common_opts->{format};
