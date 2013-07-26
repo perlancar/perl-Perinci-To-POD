@@ -1,5 +1,10 @@
 Revision history for Perinci-To-POD
 
+0.32	 2013-07-26 (SHARYANTO)
+
+         Update function name.
+
+
 0.30	 2013-07-26 (SHARYANTO)
 
          - Split bin/peri-doc to bin/peri-pkg-doc and bin/peri-func-doc (in
