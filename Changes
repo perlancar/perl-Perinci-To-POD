@@ -1,8 +1,14 @@
 Revision history for Perinci-To-POD
 
+0.33	 2013-08-11 (SHARYANTO)
+
+         - No functional changes. Update to Perinci::Sub::To::Text 0.24
+           (Perinci::To::Text 0.22, Perinci::Sub::To::POD 0.04).
+
+
 0.32	 2013-07-26 (SHARYANTO)
 
-         Update function name.
+         - Update function name.
 
 
 0.30	 2013-07-26 (SHARYANTO)
@@ -25,41 +31,41 @@ Revision history for Perinci-To-POD
 
 0.28	 2012-09-05 (SHARYANTO)
 
-	 Fix list of special arguments for transaction.
+	 - Fix list of special arguments for transaction.
 
 
 0.27	 2012-09-05 (SHARYANTO)
 
-	 Update to Rinci 1.1.29 (transaction protocol v=2, older v not
-	 supported).
+	 - Update to Rinci 1.1.29 (transaction protocol v=2, older v not
+	   supported).
 
 
 0.26	 2012-06-22 (SHARYANTO)
 
-	 Update to Rinci 1.1.11 (pkg_version -> entity_version).
+	 - Update to Rinci 1.1.11 (pkg_version -> entity_version).
 
 
 0.25	 2012-06-20 (SHARYANTO)
 
-	 Explain possible special arguments.
+	 - Explain possible special arguments.
 
 
 0.24	 2012-06-20 (SHARYANTO)
 
-	 Explain function features.
+	 - Explain function features.
 
 
 0.23	 2012-03-15 (SHARYANTO)
 
-	 No functional change. Update to using newer Perinci::To::PackageBase.
+	 - No functional change. Update to using newer Perinci::To::PackageBase.
 
 
 0.22	 2012-03-14 (SHARYANTO)
 
-	 No functional change. Update to using Perinci::To::PackageBase.
+	 - No functional change. Update to using Perinci::To::PackageBase.
 
 
 0.21	 2012-03-13 (SHARYANTO)
 
-	 First release, renamed from Sub-Spec-To-Pod. Now follow Rinci/Riap
-	 specification.
+	 - First release, renamed from Sub-Spec-To-Pod. Now follow Rinci/Riap
+	   specification.
