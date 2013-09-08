@@ -1,6 +1,6 @@
 Revision history for Perinci-To-POD
 
-0.34	 2013-09-11 (SHARYANTO)
+0.34	 2013-09-08 (SHARYANTO)
 
          - Make sure url starts with pl: instead of schemeless, due to recent
            Perinci::To::Text update which uses Perinci::Access::Perl instead of
