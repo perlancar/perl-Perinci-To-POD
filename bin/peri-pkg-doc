@@ -34,6 +34,7 @@ sub gen_doc {
     my %args = @_;
     # XXX schema
     my $url = $args{url} or return [400, "Please specify url"];
+    $url = "pl:$url" if $url =~ m!^/!;
 
     my $format = $args{format} // "man";
     $format = "text" unless
