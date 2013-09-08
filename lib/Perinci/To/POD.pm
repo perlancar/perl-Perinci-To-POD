@@ -47,7 +47,7 @@ sub gen_doc_section_version {
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Version")),
         "",
-        $self->{_doc_meta}{entity_version} // '?',
+        $self->{_doc_meta}{entity_v} // '?',
         "",
     );
 }
