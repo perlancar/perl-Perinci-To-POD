@@ -1,5 +1,14 @@
 Revision history for Perinci-To-POD
 
+0.35	 2013-10-19 (SHARYANTO)
+
+         - Remove text '' in Functions section, because we don't know the
+           exports situation yet. Perhaps this is not this module's job to
+           output export information, but for some Pod::Weaver plugin reads
+           @EXPORT* (if using Exporter) or tags from Rinci metadata (if using
+           Perinci::Exporter).
+
+
 0.34	 2013-09-08 (SHARYANTO)
 
          - Make sure url starts with pl: instead of schemeless, due to recent
