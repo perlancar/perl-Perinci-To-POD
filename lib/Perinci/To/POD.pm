@@ -93,15 +93,10 @@ sub gen_doc_section_functions {
 
     $self->SUPER::gen_doc_section_functions;
 
-    # temporary, since we don't parse export information yet
-    $self->add_doc_lines(
-        $self->loc("None are exported by default, but they are exportable."),
-        "",
-    );
+    # XXX if module uses Perinci::Exporter, show a basic usage for importing and
+    # show exportability information
 
-    # XXX if module uses Perinci::Exporter, show a basic usage for importing
-
-    # XXX categorize functions based on tags
+    # XXX categorize functions based on tags?
     for my $furi (sort keys %{ $res->{functions} }) {
         my $fname;
         for ($fname) { $_ = $furi; s!.+/!! }
