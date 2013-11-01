@@ -1,9 +1,0 @@
-#!/usr/bin/perl
-
-# VERSION
-
-print "This script has been split to peri-func-doc and peri-pkg-doc. Please run one of those scripts.\n";
-exit 0;
-1;
-# ABSTRACT: Deprecated script
-# PODNAME: peri-doc
