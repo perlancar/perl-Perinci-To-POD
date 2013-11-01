@@ -6,6 +6,8 @@ use warnings;
 
 # VERSION
 
+use Perinci::Sub::Util qw(err);
+
 eval { require Perinci::CmdLine };
 if ($@) {
     die "This script requires Perinci::CmdLine, please install it first.\n";
@@ -29,12 +31,25 @@ $SPEC{gen_doc} = {
     },
 };
 sub gen_doc {
+    require Perinci::Access;
     require File::Which;
+
+    state $pa = Perinci::Access->new;
 
     my %args = @_;
     # XXX schema
-    my $url = $args{url} or return [400, "Please specify url"];
+    my $url = $args{url} or return err(400, "Please specify url");
     $url = "pl:$url" if $url =~ m!^/!;
+
+    my $res;
+
+    $res = $pa->request(meta => $url);
+    return err(500, "Can't meta $url", $res) unless $res->[0] == 200;
+    my $meta = $res->[2];
+
+    $res = $pa->request(child_metas => $url);
+    return err(500, "Can't child_metas $url", $res) unless $res->[0] == 200;
+    my $cmetas = $res->[2];
 
     my $format = $args{format} // "man";
     $format = "text" unless
@@ -42,17 +57,19 @@ sub gen_doc {
 
     # XXX check if url is a module or function or ...
 
-    my ($doc, $res);
+    my $doc;
     if ($format eq 'man') {
         require Perinci::To::POD;
-        $doc = Perinci::To::POD->new(url=>$url);
+        $doc = Perinci::To::POD->new(
+            name=>$url, meta=>$meta, child_metas=>$cmetas);
         $res = $doc->gen_doc;
         [200, "OK", $res, {
             "cmdline.page_result"=>1,
             "cmdline.pager"=>"pod2man | man -l -"}];
     } else {
         require Perinci::To::Text;
-        $doc = Perinci::To::Text->new(url=>$url);
+        $doc = Perinci::To::Text->new(
+            name=>$url, meta=>$meta, child_metas=>$cmetas);
         $res = $doc->gen_doc;
         [200, "OK", $res, {"cmdline.page_result"=>1}];
     }

@@ -23,14 +23,15 @@ sub _md2pod {
 sub gen_doc_section_summary {
     my ($self) = @_;
 
+    my $dres = $self->{_doc_res};
+
     $self->SUPER::gen_doc_section_summary;
-    my $res = $self->{_doc_res};
 
     my $name_summary = join(
         "",
-        $res->{name} // "",
-        ($res->{name} && $res->{summary} ? ' - ' : ''),
-        $res->{summary} // ""
+        $dres->{name} // "",
+        ($dres->{name} && $dres->{summary} ? ' - ' : ''),
+        $dres->{summary} // ""
     );
 
     $self->add_doc_lines(
@@ -44,10 +45,12 @@ sub gen_doc_section_summary {
 sub gen_doc_section_version {
     my ($self) = @_;
 
+    my $meta = $self->meta;
+
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Version")),
         "",
-        $self->{_doc_meta}{entity_v} // '?',
+        $meta->{entity_v} // '?',
         "",
     );
 }
@@ -55,17 +58,18 @@ sub gen_doc_section_version {
 sub gen_doc_section_description {
     my ($self) = @_;
 
+    my $dres = $self->{_doc_res};
+
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Description")),
         ""
     );
 
     $self->SUPER::gen_doc_section_description;
-    my $res = $self->{_doc_res};
 
-    if ($res->{description}) {
+    if ($dres->{description}) {
         $self->add_doc_lines(
-            $self->_md2pod($res->{description}),
+            $self->_md2pod($dres->{description}),
             "",
         );
     }
@@ -76,15 +80,18 @@ sub gen_doc_section_description {
     #);
 }
 
+sub _gen_func_doc {
+    my $self = shift;
+    my $o = Perinci::Sub::To::POD->new(@_);
+    $o->gen_doc;
+    $o->doc_lines;
+}
+
 sub gen_doc_section_functions {
     require Perinci::Sub::To::POD;
 
     my ($self) = @_;
-    my $res = $self->{_doc_res};
-
-    $self->{_doc_fgen} //= Perinci::Sub::To::POD->new(
-        _pa => $self->_pa, # to avoid multiple instances of pa objects
-    );
+    my $dres = $self->{_doc_res};
 
     $self->add_doc_lines(
         "=head1 " . uc($self->loc("Functions")),
@@ -97,10 +104,8 @@ sub gen_doc_section_functions {
     # show exportability information
 
     # XXX categorize functions based on tags?
-    for my $furi (sort keys %{ $res->{functions} }) {
-        my $fname;
-        for ($fname) { $_ = $furi; s!.+/!! }
-        for (@{ $res->{functions}{$furi} }) {
+    for my $furi (sort keys %{ $dres->{functions} }) {
+        for (@{ $dres->{functions}{$furi} }) {
             chomp;
             $self->add_doc_lines($_);
         }
@@ -117,11 +122,12 @@ sub gen_doc_section_functions {
 You can use the included L<peri-pkg-doc> script, or:
 
  use Perinci::To::POD;
- my $doc = Perinci::To::POD->new(url => "/Some/Module/");
+ my $doc = Perinci::To::POD->new(
+     name=>"Foo::Bar", meta => {...}, child_metas => {...});
  say $doc->gen_doc;
 
-To generate documentation for a single function, see L<Perinci::Sub::To::POD>
-or the provided command-line script L<peri-func-doc>.
+To generate documentation for a single function, see L<Perinci::Sub::To::POD> or
+the provided command-line script L<peri-func-doc>.
 
 To generate a usage-like help message for a single function, you can try
 the L<peri-func-usage> from the L<Perinci::CmdLine> distribution.
