@@ -1,5 +1,12 @@
 Revision history for Perinci-To-POD
 
+0.36	 2013-11-01 (SHARYANTO)
+
+         [INCOMPATIBLE CHANGES]
+
+         - Adjust to Perinci::To::PackageBase 0.27.
+
+
 0.35	 2013-10-19 (SHARYANTO)
 
          - Remove text '' in Functions section, because we don't know the
