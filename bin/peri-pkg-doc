@@ -50,6 +50,15 @@ sub gen_doc {
     $res = $pa->request(child_metas => $url);
     return err(500, "Can't child_metas $url", $res) unless $res->[0] == 200;
     my $cmetas = $res->[2];
+    my $ometas = $res->[3]{orig_metas} // {};
+    # we want to document the original args_as & result_naked, not the
+    # wrapped-over-riap one
+    for my $uri (keys %$cmetas) {
+        for (qw/args_as result_naked/) {
+            $cmetas->{$uri}{$_} = $ometas->{$uri}{$_}
+                if defined $ometas->{$uri}{$_};
+        }
+    }
 
     my $format = $args{format} // "man";
     $format = "text" unless
